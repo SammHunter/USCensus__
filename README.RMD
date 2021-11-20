@@ -1,0 +1,154 @@
+---
+title: "README"
+author: "Samantha Hunter"
+date: "11/18/2021"
+output: html_document
+---
+
+This file is to just look at data first! 
+
+# Required R Packages
+```{r echo = TRUE, message = FALSE}
+# Library for reading data from the API
+
+# LINK: https://cran.r-project.org/web/packages/censusapi/index.html, https://cran.r-project.org/web/packages/censusapi/vignettes/getting-started.html
+## install.packages("censusapi")
+library(censusapi)
+
+# Add key to .Renviron
+Sys.setenv(CENSUS_KEY = "7191bcc7656a4ff80adf96874a8c2f6df0170b0b")
+readRenviron("~/.Renviron")
+Sys.getenv("CENSUS_KEY")
+
+
+library(httr)
+library(jsonlite)
+
+# Unlisting
+library(purrr)
+library(data.table)
+
+# Data Manipulation
+library(tidyverse)
+library(dplyr)
+```
+
+
+# Change in population
+```{r}
+apis <- listCensusApis()
+view(apis)
+?filter
+
+ts <- apis %>% filter(isTimeseries == TRUE)
+population_geo <- listCensusMetadata(
+  name = "timeseries/idb/5year", 
+  type = "variables")
+population_geo
+
+
+pop_change_var <- listCensusMetadata(
+  name = "pep/components", 
+  type = "variables", 
+  vintage = 2019)
+pop_change_var
+
+pop_change <- getCensus(
+    name = "pep/components",
+    vintage = 2019,
+    vars = c("BIRTHS", "DEATHS", "NATURALINC", "NETMIG", "PERIOD_CODE", "RBIRTH", 
+             "RDEATH", "RDEATH"),
+    region = "state:36")
+head(pop_change)
+
+# Available options for type is...
+#    geographies, variables, groups, examples, documentation 
+# Population Estimates: Population Estimates
+population_geo <- listCensusMetadata(
+  name = "pep/population", 
+  type = "geography", 
+  vintage = 2019)
+population_geo
+
+
+pop_change_var <- listCensusMetadata(
+  name = "pep/components", 
+  type = "variables", 
+  vintage = 2019)
+pop_change_var
+
+pop_change <- getCensus(
+    name = "pep/components",
+    vintage = 2019,
+    vars = c("BIRTHS", "DEATHS", "NATURALINC", "NETMIG", "PERIOD_CODE", "RBIRTH", 
+             "RDEATH", "RDEATH"),
+    region = "state:36")
+head(pop_change)
+```
+
+Cannot figure out this call
+```{r}
+# PSEO, updated March 30, 2020
+# Maybe you can email someone and ask about this
+pseo <- listCensusMetadata(
+  name = "timeseries/pseo/earnings",
+  type = "variables")
+pseo
+
+earnings <- getCensus(
+  name = "timeseries/pseo/earnings", 
+  vars = c("Y1_P25_EARNINGS"), 
+  region = "division:01", 
+  institution = 00365800
+)
+```
+
+
+# Follow along with "Getting Started"
+```{r}
+sahie_vars <- listCensusMetadata(
+    name = "timeseries/healthins/sahie", 
+    type = "variables")
+sahie_vars
+
+
+listCensusMetadata(
+    name = "timeseries/healthins/sahie", 
+    type = "geography")
+
+
+sahie_national <- getCensus(
+    name = "timeseries/healthins/sahie",
+    vars = c("NAME", "IPRCAT", "IPR_DESC", "PCTUI_PT"), 
+    region = "us:*", 
+    time = 2018)
+sahie_national
+
+
+sahie_states <- getCensus(
+    name = "timeseries/healthins/sahie",
+    vars = c("NAME", "IPRCAT", "IPR_DESC", "PCTUI_PT"), 
+    region = "state:*", 
+    time = 2018)
+head(sahie_states)
+
+
+sahie_counties <- getCensus(
+    name = "timeseries/healthins/sahie",
+    vars = c("NAME", "IPRCAT", "IPR_DESC", "PCTUI_PT"), 
+    region = "county:*", 
+    regionin = "state:01,02", 
+    time = 2018)
+head(sahie_counties, n=12L)
+
+
+sahie_years <- getCensus(
+    name = "timeseries/healthins/sahie",
+    vars = c("NAME", "PCTUI_PT"), 
+    region = "state:01", 
+    time = "from 2006 to 2018")
+head(sahie_years)
+
+
+```
+
